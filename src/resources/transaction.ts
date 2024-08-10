@@ -1,4 +1,5 @@
 import PaystackApiClient from "../api-client";
+import { transactionInitializeSchema } from "../schemas/transaction";
 import {
   InitializeTransactionRequest,
   InitializeTransactionRequestOptions,
@@ -7,6 +8,7 @@ import {
   VerifyTransactionResData,
   VerifyTransactionResMessage,
 } from "../types/transaction";
+import z from "zod";
 
 /*
  * The Transactions API allows you create and manage payments on your integration.
@@ -33,9 +35,12 @@ export default class Transaction {
     options?: InitializeTransactionRequestOptions
   ) =>
     await this.paystackApi.makeRequest<
-      Omit<InitializeTransactionRequest, "amount"> & { amount: string },
+      never,
+      z.infer<typeof transactionInitializeSchema>,
       InitializeTransactionResData,
-      InitializeTransactionResMessage
+      InitializeTransactionResMessage,
+      never,
+      typeof transactionInitializeSchema
     >({
       url: `${this.baseEndPoint}/initialize`,
       method: "post",
@@ -43,9 +48,10 @@ export default class Transaction {
         ...data,
         amount:
           options && options.subunit === false
-            ? (data.amount * 100).toString()
+            ? (Number(data.amount) * 100).toString()
             : data.amount.toString(),
       },
+      dataSchema: transactionInitializeSchema,
     });
 
   /**
@@ -55,9 +61,12 @@ export default class Transaction {
    */
   verify = async ({ reference }: { reference: string }) =>
     await this.paystackApi.makeRequest<
-      undefined,
+      never,
+      never,
       VerifyTransactionResData,
-      VerifyTransactionResMessage
+      VerifyTransactionResMessage,
+      never,
+      never
     >({
       url: `${this.baseEndPoint}/verify/${reference}`,
       method: "get",

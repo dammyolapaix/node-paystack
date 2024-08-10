@@ -1,29 +1,15 @@
+import { z } from "zod";
 import { Currency } from ".";
+import {
+  ChannelEnum,
+  transactionInitializeSchema,
+} from "../schemas/transaction";
 
-type Channel =
-  | "card"
-  | "bank"
-  | "ussd"
-  | "qr"
-  | "mobile_money"
-  | "bank_transfer"
-  | "eft";
+type Channel = z.infer<typeof ChannelEnum>;
 
-export type InitializeTransactionRequest = {
-  amount: number;
-  email: string;
-  currency?: Currency;
-  reference?: string;
-  callback_url?: string;
-  plan?: string;
-  invoice_limit?: number;
-  metadata?: string;
-  channels?: Channel[];
-  split_code?: string;
-  subaccount?: string;
-  transaction_charge?: number;
-  bearer?: "account" | "subaccount";
-};
+export type InitializeTransactionRequest = z.infer<
+  typeof transactionInitializeSchema
+>;
 
 export type InitializeTransactionRequestOptions = {
   subunit: false;
@@ -35,33 +21,31 @@ export type InitializeTransactionResData = {
   reference: string;
 };
 
-export type InitializeTransactionResMessage = "Authorization URL created";
-
 type LogHistoryItem = {
   type: "action" | "success" | "error";
   message: string;
   time: number;
 };
 
-type Log = {
+type TransactionLog = {
   start_time: number;
   time_spent: number;
   attempts: number;
   errors: number;
   success: boolean;
   mobile: boolean;
-  input: unknown[]; // Assuming input can be of unknown type; refine as necessary
+  input: unknown[];
   history: LogHistoryItem[];
 };
 
-type Authorization = {
+type TransactionAuthorization = {
   authorization_code: string;
   bin: string;
   last4: string;
   exp_month: string;
   exp_year: string;
   channel: Channel;
-  card_type: "visa";
+  card_type: "visa" | "mastercard DEBIT";
   bank: string;
   country_code: "NG" | "GH";
   brand: "visa";
@@ -85,21 +69,24 @@ type Customer = {
 export type VerifyTransactionResData = {
   id: number;
   domain: "test" | "live";
-  status: "success" | "abandoned";
+  status: "success" | "abandoned" | "failed";
   reference: string;
   amount: number;
   message: null;
-  gateway_response: "Successful" | "The transaction was not completed";
+  gateway_response:
+    | "Successful"
+    | "The transaction was not completed"
+    | "Declined";
   paid_at: string; // ISO 8601 format date
   created_at: string; // ISO 8601 format date
   channel: Channel;
   currency: Currency;
   ip_address: string;
   metadata: string;
-  log: Log;
+  log: TransactionLog;
   fees: number;
   fees_split: null;
-  authorization: Authorization;
+  authorization: Record<string, unknown> | TransactionAuthorization;
   customer: Customer;
   plan: unknown | null;
   split: Record<string, unknown>;
@@ -115,4 +102,6 @@ export type VerifyTransactionResData = {
   subaccount: Record<string, unknown>;
 };
 
+export type InitializeTransactionResMessage = "Authorization URL created";
 export type VerifyTransactionResMessage = "Verification successful";
+export type ListTransactionResMessage = "Transactions retrieved";
