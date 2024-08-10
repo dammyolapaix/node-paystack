@@ -1,0 +1,31 @@
+{
+  "name": "node-paystack",
+  "version": "0.0.1",
+  "description": "A Paystack api nodejs package, fully support Typescript and Javascript",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "homepage": "github.com/dammyolapaix/node-paystack",
+  "repository": {
+    "url": "github.com/dammyolapaix/node-paystack"
+  },
+  "scripts": {
+    "build": "tsup",
+    "lint": "tsc"
+  },
+  "keywords": [
+    "paystack",
+    "paystack-node",
+    "node-paystack",
+    "nodejs-paystack"
+  ],
+  "author": "Dammy Ola",
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "axios": "^1.7.3"
+  }
+}
