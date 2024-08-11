@@ -1,5 +1,8 @@
 import PaystackApiClient from "../api-client";
-import { transactionInitializeSchema } from "../schemas/transaction";
+import {
+  transactionInitializeSchema,
+  transactionVerifySchema,
+} from "../schemas/transaction";
 import {
   InitializeTransactionRequest,
   InitializeTransactionRequestOptions,
@@ -59,16 +62,18 @@ export default class Transaction {
    *
    * @memberOf Transaction
    */
-  verify = async ({ reference }: { reference: string }) =>
+  verify = async ({ reference }: z.infer<typeof transactionVerifySchema>) =>
     await this.paystackApi.makeRequest<
       never,
-      never,
+      z.infer<typeof transactionVerifySchema>,
       VerifyTransactionResData,
       VerifyTransactionResMessage,
       never,
-      never
+      typeof transactionVerifySchema
     >({
       url: `${this.baseEndPoint}/verify/${reference}`,
       method: "get",
+      data: { reference },
+      dataSchema: transactionVerifySchema,
     });
 }

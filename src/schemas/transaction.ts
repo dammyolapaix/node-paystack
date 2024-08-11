@@ -48,3 +48,9 @@ export const transactionInitializeSchema = z.object({
   transaction_charge: z.number().positive().optional(),
   bearer: z.enum(["account", "subaccount"]).optional(),
 });
+
+export const transactionVerifySchema = z.object({
+  reference: z
+    .string({ invalid_type_error: "The reference must be a string" })
+    .min(3, "The reference must be at least 3 characters"),
+});
