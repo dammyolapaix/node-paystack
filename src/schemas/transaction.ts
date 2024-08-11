@@ -55,6 +55,10 @@ export const transactionVerifySchema = z.object({
     .min(3, "The reference must be at least 3 characters"),
 });
 
+export const transactionFetchSchema = z.object({
+  id: z.number({ invalid_type_error: "The id must be a number" }),
+});
+
 export const transactionQuerySchema = z.object({
   perPage: z
     .number({ message: "perPage query must be a number" })

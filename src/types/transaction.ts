@@ -2,8 +2,10 @@ import { z } from "zod";
 import { Currency } from ".";
 import {
   ChannelEnum,
+  transactionFetchSchema,
   transactionInitializeSchema,
   transactionQuerySchema,
+  transactionVerifySchema,
 } from "../schemas/transaction";
 
 type Channel = z.infer<typeof ChannelEnum>;
@@ -67,32 +69,32 @@ type Customer = {
   international_format_phone: string | null;
 };
 
-export type VerifyTransactionResData = {
+export type TransactionResData = {
   id: number;
   domain: "test" | "live";
   status: "success" | "abandoned" | "failed";
   reference: string;
   amount: number;
-  message: null;
+  message: unknown | null;
   gateway_response:
     | "Successful"
     | "The transaction was not completed"
     | "Declined";
-  paid_at: string; // ISO 8601 format date
+  paid_at: string | null; // ISO 8601 format date
   created_at: string; // ISO 8601 format date
   channel: Channel;
   currency: Currency;
   ip_address: string;
-  metadata: string;
-  log: TransactionLog;
-  fees: number;
+  metadata: unknown | null;
+  log: TransactionLog | null;
+  fees: number | null;
   fees_split: null;
   authorization: Record<string, unknown> | TransactionAuthorization;
   customer: Customer;
   plan: unknown | null;
   split: Record<string, unknown>;
   order_id: string | null;
-  paidAt: string; // ISO 8601 format date
+  paidAt: string | null; // ISO 8601 format date
   createdAt: string; // ISO 8601 format date
   requested_amount: number;
   pos_transaction_data: unknown | null;
@@ -103,8 +105,11 @@ export type VerifyTransactionResData = {
   subaccount: Record<string, unknown>;
 };
 
+export type VerifyTransactionReqData = z.infer<typeof transactionVerifySchema>;
 export type ListTransactionQuery = z.infer<typeof transactionQuerySchema>;
+export type FetchTransactionReqData = z.infer<typeof transactionFetchSchema>;
 
 export type InitializeTransactionResMessage = "Authorization URL created";
 export type VerifyTransactionResMessage = "Verification successful";
 export type ListTransactionResMessage = "Transactions retrieved";
+export type FetchTransactionResMessage = "Transaction retrieved";

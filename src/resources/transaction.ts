@@ -1,17 +1,21 @@
 import PaystackApiClient from "../api-client";
 import {
+  transactionFetchSchema,
   transactionInitializeSchema,
   transactionQuerySchema,
   transactionVerifySchema,
 } from "../schemas/transaction";
 import {
+  FetchTransactionReqData,
+  FetchTransactionResMessage,
   InitializeTransactionRequest,
   InitializeTransactionRequestOptions,
   InitializeTransactionResData,
   InitializeTransactionResMessage,
   ListTransactionQuery,
   ListTransactionResMessage,
-  VerifyTransactionResData,
+  TransactionResData,
+  VerifyTransactionReqData,
   VerifyTransactionResMessage,
 } from "../types/transaction";
 import z from "zod";
@@ -65,11 +69,11 @@ export default class Transaction {
    *
    * @memberOf Transaction
    */
-  verify = async ({ reference }: z.infer<typeof transactionVerifySchema>) =>
+  verify = async ({ reference }: VerifyTransactionReqData) =>
     await this.paystackApi.makeRequest<
       never,
-      z.infer<typeof transactionVerifySchema>,
-      VerifyTransactionResData,
+      VerifyTransactionReqData,
+      TransactionResData,
       VerifyTransactionResMessage,
       never,
       typeof transactionVerifySchema
@@ -84,7 +88,7 @@ export default class Transaction {
     await this.paystackApi.makeRequest<
       ListTransactionQuery,
       never,
-      VerifyTransactionResData[],
+      TransactionResData[],
       ListTransactionResMessage,
       typeof transactionQuerySchema,
       never
@@ -93,5 +97,19 @@ export default class Transaction {
       url: this.baseEndPoint,
       query,
       querySchema: transactionQuerySchema,
+    });
+
+  fetch = async ({ id }: FetchTransactionReqData) =>
+    await this.paystackApi.makeRequest<
+      never,
+      FetchTransactionReqData,
+      TransactionResData,
+      FetchTransactionResMessage,
+      never,
+      typeof transactionFetchSchema
+    >({
+      method: "get",
+      url: `${this.baseEndPoint}/${id}`,
+      dataSchema: transactionFetchSchema,
     });
 }
