@@ -54,3 +54,41 @@ export const transactionVerifySchema = z.object({
     .string({ invalid_type_error: "The reference must be a string" })
     .min(3, "The reference must be at least 3 characters"),
 });
+
+export const transactionQuerySchema = z.object({
+  perPage: z
+    .number({ message: "perPage query must be a number" })
+    .min(0, "The min value of perPage is 0")
+    .optional(),
+  page: z
+    .number({ message: "page query must be a number" })
+    .min(0, "The min value of page is 1")
+    .optional(),
+  customer: z
+    .number({ message: "customer id query must be a number" })
+    .optional(),
+  terminalid: z
+    .string({ message: "terminalid query must be a string" })
+    .optional(),
+  status: z
+    .enum(["failed", "success", "abandoned"], {
+      message:
+        "The transaction status query only accepts 'failed', 'success', and 'abandoned'",
+    })
+    .optional(),
+  amount: z
+    .number({ message: "amount query query must be a number" })
+    .optional(),
+  from: z
+    .union([
+      z.string().datetime({ message: "from query must be a valid date time" }),
+      z.string().date("from query must be a valid date"),
+    ])
+    .optional(),
+  to: z
+    .union([
+      z.string().datetime({ message: "to query must be a valid date time" }),
+      z.string().date("to query must be a valid date"),
+    ])
+    .optional(),
+});

@@ -3,6 +3,7 @@ import { Currency } from ".";
 import {
   ChannelEnum,
   transactionInitializeSchema,
+  transactionQuerySchema,
 } from "../schemas/transaction";
 
 type Channel = z.infer<typeof ChannelEnum>;
@@ -101,6 +102,8 @@ export type VerifyTransactionResData = {
   plan_object: Record<string, unknown>;
   subaccount: Record<string, unknown>;
 };
+
+export type ListTransactionQuery = z.infer<typeof transactionQuerySchema>;
 
 export type InitializeTransactionResMessage = "Authorization URL created";
 export type VerifyTransactionResMessage = "Verification successful";

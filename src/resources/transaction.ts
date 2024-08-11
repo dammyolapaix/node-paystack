@@ -1,6 +1,7 @@
 import PaystackApiClient from "../api-client";
 import {
   transactionInitializeSchema,
+  transactionQuerySchema,
   transactionVerifySchema,
 } from "../schemas/transaction";
 import {
@@ -8,6 +9,8 @@ import {
   InitializeTransactionRequestOptions,
   InitializeTransactionResData,
   InitializeTransactionResMessage,
+  ListTransactionQuery,
+  ListTransactionResMessage,
   VerifyTransactionResData,
   VerifyTransactionResMessage,
 } from "../types/transaction";
@@ -75,5 +78,20 @@ export default class Transaction {
       method: "get",
       data: { reference },
       dataSchema: transactionVerifySchema,
+    });
+
+  list = async (query?: ListTransactionQuery) =>
+    await this.paystackApi.makeRequest<
+      ListTransactionQuery,
+      never,
+      VerifyTransactionResData[],
+      ListTransactionResMessage,
+      typeof transactionQuerySchema,
+      never
+    >({
+      method: "get",
+      url: this.baseEndPoint,
+      query,
+      querySchema: transactionQuerySchema,
     });
 }
