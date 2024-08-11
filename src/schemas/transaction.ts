@@ -11,7 +11,7 @@ export const ChannelEnum = z.enum([
   "eft",
 ]);
 
-export const transactionInitializeSchema = z.object({
+export const InitializeTransactionSchema = z.object({
   email: z
     .string({ required_error: "The email is required" })
     .email({ message: "The transaction email is invalid" }),
@@ -26,6 +26,7 @@ export const transactionInitializeSchema = z.object({
   currency: CurrencyEnum.optional(),
   reference: z
     .string({ invalid_type_error: "The reference must be a string" })
+    .min(1, "The reference must be at least 1 character")
     .optional(),
   callback_url: z
     .string()
@@ -33,33 +34,33 @@ export const transactionInitializeSchema = z.object({
     .optional(),
   plan: z
     .string({ invalid_type_error: "The plan must be a string" })
+    .min(1, "The plan must be at least 1 character")
     .optional(),
   invoice_limit: z.number().positive().optional(),
   metadata: z
     .string({ invalid_type_error: "The metadata must be a string" })
+    .min(1, "The metadata must be at least 1 character")
     .optional(),
   channels: z.array(ChannelEnum).optional(),
   split_code: z
     .string({ invalid_type_error: "The split_code must be a string" })
+    .min(1, "The split_code must be at least 1 character")
     .optional(),
   subaccount: z
     .string({ invalid_type_error: "The subaccount must be a string" })
+    .min(1, "The subaccount must be at least 1 character")
     .optional(),
   transaction_charge: z.number().positive().optional(),
   bearer: z.enum(["account", "subaccount"]).optional(),
 });
 
-export const transactionVerifySchema = z.object({
+export const VerifyTransactionSchema = z.object({
   reference: z
     .string({ invalid_type_error: "The reference must be a string" })
     .min(3, "The reference must be at least 3 characters"),
 });
 
-export const transactionFetchSchema = z.object({
-  id: z.number({ invalid_type_error: "The id must be a number" }),
-});
-
-export const transactionQuerySchema = z.object({
+export const ListQueryTransactionSchema = z.object({
   perPage: z
     .number({ message: "perPage query must be a number" })
     .min(0, "The min value of perPage is 0")
@@ -96,3 +97,32 @@ export const transactionQuerySchema = z.object({
     ])
     .optional(),
 });
+
+export const transactionFetchSchema = z.object({
+  id: z.number({ invalid_type_error: "The id must be a number" }),
+});
+
+export const ChargeAuthorizationTransactionSchema = z.intersection(
+  InitializeTransactionSchema.pick({
+    amount: true,
+    email: true,
+    reference: true,
+    currency: true,
+    metadata: true,
+    channels: true,
+    subaccount: true,
+    transaction_charge: true,
+    bearer: true,
+  }),
+
+  z.object({
+    authorization_code: z
+      .string({ invalid_type_error: "The reference must be a string" })
+      .min(1, "The authorization_code must be at least 1 character"),
+    queue: z
+      .boolean({
+        message: "queue must be a boolean that is true or false",
+      })
+      .optional(),
+  })
+);

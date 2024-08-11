@@ -3,16 +3,13 @@ import { Currency } from ".";
 import {
   ChannelEnum,
   transactionFetchSchema,
-  transactionInitializeSchema,
-  transactionQuerySchema,
-  transactionVerifySchema,
+  InitializeTransactionSchema,
+  ListQueryTransactionSchema,
+  VerifyTransactionSchema,
+  ChargeAuthorizationTransactionSchema,
 } from "../schemas/transaction";
 
 type Channel = z.infer<typeof ChannelEnum>;
-
-export type InitializeTransactionRequest = z.infer<
-  typeof transactionInitializeSchema
->;
 
 export type InitializeTransactionRequestOptions = {
   subunit: false;
@@ -65,7 +62,7 @@ type Customer = {
   customer_code: string;
   phone: string | null;
   metadata: unknown | null;
-  risk_action: string;
+  risk_action: "default" | string;
   international_format_phone: string | null;
 };
 
@@ -105,11 +102,18 @@ export type TransactionResData = {
   subaccount: Record<string, unknown>;
 };
 
-export type VerifyTransactionReqData = z.infer<typeof transactionVerifySchema>;
-export type ListTransactionQuery = z.infer<typeof transactionQuerySchema>;
+export type InitializeTransactionReqData = z.infer<
+  typeof InitializeTransactionSchema
+>;
+export type VerifyTransactionReqData = z.infer<typeof VerifyTransactionSchema>;
+export type ListTransactionQuery = z.infer<typeof ListQueryTransactionSchema>;
 export type FetchTransactionReqData = z.infer<typeof transactionFetchSchema>;
+export type ChargeAuthorizationTransactionReqData = z.infer<
+  typeof ChargeAuthorizationTransactionSchema
+>;
 
 export type InitializeTransactionResMessage = "Authorization URL created";
 export type VerifyTransactionResMessage = "Verification successful";
 export type ListTransactionResMessage = "Transactions retrieved";
 export type FetchTransactionResMessage = "Transaction retrieved";
+export type ChargeAuthorizationTransactionResMessage = "Charge attempted";

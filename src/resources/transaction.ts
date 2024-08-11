@@ -1,14 +1,17 @@
 import PaystackApiClient from "../api-client";
 import {
   transactionFetchSchema,
-  transactionInitializeSchema,
-  transactionQuerySchema,
-  transactionVerifySchema,
+  InitializeTransactionSchema,
+  ListQueryTransactionSchema,
+  VerifyTransactionSchema,
+  ChargeAuthorizationTransactionSchema,
 } from "../schemas/transaction";
 import {
+  ChargeAuthorizationTransactionReqData,
+  ChargeAuthorizationTransactionResMessage,
   FetchTransactionReqData,
   FetchTransactionResMessage,
-  InitializeTransactionRequest,
+  InitializeTransactionReqData,
   InitializeTransactionRequestOptions,
   InitializeTransactionResData,
   InitializeTransactionResMessage,
@@ -18,7 +21,6 @@ import {
   VerifyTransactionReqData,
   VerifyTransactionResMessage,
 } from "../types/transaction";
-import z from "zod";
 
 /*
  * The Transactions API allows you create and manage payments on your integration.
@@ -36,21 +38,23 @@ export default class Transaction {
   }
 
   /**
+   * Initialize Transaction
+   *
    * Initialize a transaction from your backend
    *
    * @memberOf Transaction
    */
   initialize = async (
-    data: InitializeTransactionRequest,
+    data: InitializeTransactionReqData,
     options?: InitializeTransactionRequestOptions
   ) =>
     await this.paystackApi.makeRequest<
       never,
-      z.infer<typeof transactionInitializeSchema>,
+      InitializeTransactionReqData,
       InitializeTransactionResData,
       InitializeTransactionResMessage,
       never,
-      typeof transactionInitializeSchema
+      typeof InitializeTransactionSchema
     >({
       url: `${this.baseEndPoint}/initialize`,
       method: "post",
@@ -61,10 +65,12 @@ export default class Transaction {
             ? (Number(data.amount) * 100).toString()
             : data.amount.toString(),
       },
-      dataSchema: transactionInitializeSchema,
+      dataSchema: InitializeTransactionSchema,
     });
 
   /**
+   * Verify Transaction
+   *
    * Confirm the status of a transaction
    *
    * @memberOf Transaction
@@ -76,29 +82,49 @@ export default class Transaction {
       TransactionResData,
       VerifyTransactionResMessage,
       never,
-      typeof transactionVerifySchema
+      typeof VerifyTransactionSchema
     >({
       url: `${this.baseEndPoint}/verify/${reference}`,
       method: "get",
       data: { reference },
-      dataSchema: transactionVerifySchema,
+      dataSchema: VerifyTransactionSchema,
     });
 
+  /**
+   * List Transaction
+   *
+   * List transactions carried out on your integration
+   *
+   * Transaction ID data type
+   *
+   * If you plan to store or make use of the the transaction ID, you should represent it as a unsigned 64-bit integer. To learn more, [check out our changelog]{@link https://paystack.com/docs/changelog/api/#june-2022}
+   * @memberOf Transaction
+   */
   list = async (query?: ListTransactionQuery) =>
     await this.paystackApi.makeRequest<
       ListTransactionQuery,
       never,
       TransactionResData[],
       ListTransactionResMessage,
-      typeof transactionQuerySchema,
+      typeof ListQueryTransactionSchema,
       never
     >({
       method: "get",
       url: this.baseEndPoint,
       query,
-      querySchema: transactionQuerySchema,
+      querySchema: ListQueryTransactionSchema,
     });
 
+  /**
+   * Fetch Transaction
+   *
+   * Get details of a transaction carried out on your integration
+   *
+   * Transaction ID data type
+   *
+   * If you plan to store or make use of the the transaction ID, you should represent it as a unsigned 64-bit integer. To learn more, [check out our changelog]{@link https://paystack.com/docs/changelog/api/#june-2022}
+   * @memberOf Transaction
+   */
   fetch = async ({ id }: FetchTransactionReqData) =>
     await this.paystackApi.makeRequest<
       never,
@@ -111,5 +137,38 @@ export default class Transaction {
       method: "get",
       url: `${this.baseEndPoint}/${id}`,
       dataSchema: transactionFetchSchema,
+    });
+
+  /**
+   * Charge Authorization
+   *
+   * All authorizations marked as reusable can be charged with this endpoint whenever you need to receive payments
+   *
+   * @param data
+   * @param options
+   * @returns
+   */
+  chargeAuthorization = async (
+    data: ChargeAuthorizationTransactionReqData,
+    options?: InitializeTransactionRequestOptions
+  ) =>
+    await this.paystackApi.makeRequest<
+      never,
+      ChargeAuthorizationTransactionReqData,
+      TransactionResData,
+      ChargeAuthorizationTransactionResMessage,
+      never,
+      typeof ChargeAuthorizationTransactionSchema
+    >({
+      url: `${this.baseEndPoint}/charge_authorization`,
+      method: "post",
+      data: {
+        ...data,
+        amount:
+          options && options.subunit === false
+            ? (Number(data.amount) * 100).toString()
+            : data.amount.toString(),
+      },
+      dataSchema: ChargeAuthorizationTransactionSchema,
     });
 }
