@@ -31,7 +31,10 @@ export default class PaystackApi {
         .min(10, "Invalid secret key")
         .parse(this.secretKey);
 
-      if (method === "get" && request.query) {
+      if (method === "get" && (request.query || request.data)) {
+        if ("dataSchema" in request && request.dataSchema) {
+          request.data = request.dataSchema.parse(request.data);
+        }
         if (request.querySchema) {
           request.query = request.querySchema.parse(request.query);
         }

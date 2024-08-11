@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { CurrencyEnum } from "../schemas";
 
-type MakeGetRequest<Query> = {
+type MakeGetRequest<Query, ReqData> = {
   method: "get";
   url: string;
   query?: Query;
+  data?: ReqData;
 };
 
 type MakePostRequest<ReqData> = {
@@ -14,11 +15,14 @@ type MakePostRequest<ReqData> = {
 };
 
 export type MakeRequest<Query, ReqData> =
-  | MakeGetRequest<Query>
+  | MakeGetRequest<Query, ReqData>
   | MakePostRequest<ReqData>;
 
 export type MakeRequestWithSchema<Query, ReqData, QuerySchema, DataSchema> =
-  | (MakeGetRequest<Query> & { querySchema?: QuerySchema })
+  | (MakeGetRequest<Query, ReqData> & {
+      querySchema?: QuerySchema;
+      dataSchema?: DataSchema;
+    })
   | (MakePostRequest<ReqData> & { dataSchema?: DataSchema });
 
 export type ListMetaResponse = {
